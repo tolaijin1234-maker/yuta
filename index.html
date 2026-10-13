@@ -47,9 +47,14 @@ input{font:inherit;color:inherit}
 .intro-l h1 .h1-sub{display:flex;align-items:center;gap:18px;font-size:.36em;font-weight:400;letter-spacing:.42em;margin-top:22px;color:var(--accent)}
 .intro-l h1 .h1-sub::before{content:"";width:48px;height:1px;background:currentColor}
 .intro-l h1 small{display:block;font-family:var(--latin);font-weight:400;font-style:italic;font-size:.36em;letter-spacing:.04em;color:var(--ink-2);margin-top:14px}
-.facts{display:grid;grid-template-columns:repeat(3,auto);gap:0 48px;margin:40px 0 48px;border-top:1px solid var(--line);padding-top:22px;max-width:560px}
+.facts{display:grid;grid-template-columns:repeat(3,auto);gap:0 48px;margin:40px 0 0;border-top:1px solid var(--line);padding-top:22px;max-width:560px}
 .facts dt{font-family:var(--latin);font-style:italic;color:var(--ink-2);font-size:15px}
 .facts dd{font-family:var(--serif);font-size:20px;margin-top:4px}
+.addr{margin:14px 0 44px;font-size:13px;letter-spacing:.06em;color:var(--ink-2);line-height:1.9;max-width:560px}
+.addr a,.iv-addr a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px;margin-left:12px;white-space:nowrap;transition:border-color .3s}
+.addr a:hover,.iv-addr a:hover{border-color:var(--ink)}
+.iv-addr{text-align:center;font-size:12px;letter-spacing:.06em;color:var(--ink-2);padding:12px 0 0;line-height:1.8}
+.iv-addr a{margin-left:8px}
 .intro-r{flex:1 1 48%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;
   position:relative;overflow:hidden;padding:40px;border-left:1px solid var(--line)}
 .rings-box{position:relative;width:min(540px,88%);aspect-ratio:1}
@@ -194,7 +199,8 @@ input{font:inherit;color:inherit}
   .view{position:relative;min-height:100vh;min-height:100dvh}
   #intro{flex-direction:column}
   .intro-l{padding:32px 24px 20px;flex:none}
-  .facts{gap:0 22px;margin:26px 0 30px}
+  .facts{gap:0 22px;margin:26px 0 0}
+  .addr{margin:12px 0 30px}
   .facts dd{font-size:17px}
   .intro-r{flex:none;border-left:0;border-top:1px solid var(--line);padding:30px 20px 40px;gap:22px}
   .rings-box{width:min(300px,80vw)}
@@ -233,6 +239,7 @@ input{font:inherit;color:inherit}
         <div><dt>Time</dt><dd id="f-time"></dd></div>
         <div><dt>Venue</dt><dd id="f-venue"></dd></div>
       </dl>
+      <p class="addr" id="f-addr"></p>
       <button class="btn" id="start">開始填寫 <span class="arr">→</span></button>
       <p class="q-hint" style="margin-top:18px;font-family:var(--latin);font-style:italic;font-size:16px;letter-spacing:.03em">About 5 minutes · Thank you for taking the time.</p>
     </div>
@@ -280,7 +287,10 @@ input{font:inherit;color:inherit}
    CONFIG：這裡改日期、地點、品牌、店名、收資料網址
    ========================================================= */
 const CONFIG = {
-  date: '暫定', time: '暫定', venue: '暫定',
+  date: '暫定', time: '暫定',
+  venue: '頂粵吉品',
+  address: '台中市西屯區市政南一路288號',
+  venueUrl: 'https://www.dyjipin.com.tw/',
   deadline: '',                     // 例如 '請於 12/15 前填寫'
   // 部署 Google Apps Script 後，把網址貼在這裡；留空 = 測試模式（不會真的送出）
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzbEp3miK14WxzwCu_YEHG3rPKl3fI5tc5rykryjKPd6n0fUHpTWUGgF05c2shTY9Pe/exec',
@@ -349,6 +359,10 @@ const pad = n => String(n).padStart(2,'0');
 $('#f-date').textContent = CONFIG.date;
 $('#f-time').textContent = CONFIG.time;
 $('#f-venue').textContent = CONFIG.venue;
+const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.venue + ' ' + CONFIG.address);
+const venueLinks = () => (CONFIG.venueUrl ? `<a href="${CONFIG.venueUrl}" target="_blank" rel="noopener">餐廳官網 ↗</a>` : '')
+  + (CONFIG.address ? `<a href="${MAP_URL}" target="_blank" rel="noopener">Google 地圖 ↗</a>` : '');
+$('#f-addr').innerHTML = (CONFIG.address ? esc(CONFIG.address) : '') + venueLinks();
 $('#deadline').textContent = CONFIG.deadline || 'Please RSVP';
 /* 七色圓環：每圈一個品牌，弧長、轉速、方向各不同 */
 (function drawRings(){
@@ -549,6 +563,7 @@ function buildInvite(){
       <div><dt>Time</dt><dd>${esc(CONFIG.time)}</dd></div>
       <div><dt>Venue</dt><dd>${esc(CONFIG.venue)}</dd></div>
     </dl>
+    ${CONFIG.address ? `<div class="iv-addr">${esc(CONFIG.address)}<br>${venueLinks()}</div>` : ''}
     <div class="iv-meta"><span>${going ? (diet || '') : '這次不克出席'}</span><span>${going ? extra : '期待下次相聚'}</span></div>
     <div class="iv-stub">
       <div class="iv-admit">${going ? `Admit ${party}<small>位</small>` : 'See you next time'}</div>
@@ -568,7 +583,7 @@ function thanks(){
   buildInvite();
   $('#thanks-title').textContent = attending(A) ? `${A.name}，到時見！` : '收到，謝謝你的回覆';
   $('#thanks-msg').innerHTML = attending(A)
-    ? `已收到你的報名。活動資訊確定後會寄到 ${esc(A.email)}。`
+    ? `已收到你的報名，邀請函確認信已寄到 ${esc(A.email)}。<br>幾分鐘內沒看到，請查看垃圾郵件匣。`
     : `很可惜這次不能一起，謝謝你撥空回覆。`;
   if (!CONFIG.SCRIPT_URL) $('#thanks-msg').innerHTML += '<br><small>（測試模式：資料未實際送出）</small>';
   show('thanks');
