@@ -47,14 +47,14 @@ input{font:inherit;color:inherit}
 .intro-l h1 .h1-sub{display:flex;align-items:center;gap:18px;font-size:.36em;font-weight:400;letter-spacing:.42em;margin-top:22px;color:var(--accent)}
 .intro-l h1 .h1-sub::before{content:"";width:48px;height:1px;background:currentColor}
 .intro-l h1 small{display:block;font-family:var(--latin);font-weight:400;font-style:italic;font-size:.36em;letter-spacing:.04em;color:var(--ink-2);margin-top:14px}
-.facts{display:grid;grid-template-columns:repeat(3,auto);gap:0 48px;margin:40px 0 0;border-top:1px solid var(--line);padding-top:22px;max-width:560px}
+.facts{display:grid;grid-template-columns:repeat(3,auto);gap:0 48px;margin:40px 0 48px;border-top:1px solid var(--line);padding-top:22px;max-width:560px}
 .facts dt{font-family:var(--latin);font-style:italic;color:var(--ink-2);font-size:15px}
 .facts dd{font-family:var(--serif);font-size:20px;margin-top:4px}
-.addr{margin:14px 0 44px;font-size:13px;letter-spacing:.06em;color:var(--ink-2);line-height:1.9;max-width:560px}
-.addr a,.iv-addr a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px;margin-left:12px;white-space:nowrap;transition:border-color .3s}
-.addr a:hover,.iv-addr a:hover{border-color:var(--ink)}
-.iv-addr{text-align:center;font-size:12px;letter-spacing:.06em;color:var(--ink-2);padding:12px 0 0;line-height:1.8}
-.iv-addr a{margin-left:8px}
+.vlink{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor;transition:border-color .3s}
+.vlink:hover{border-bottom-style:solid}
+.vaddr{display:block;font-family:var(--sans);font-size:12px;letter-spacing:.04em;margin-top:6px;line-height:1.6}
+.vaddr a{color:var(--ink-2);text-decoration:none;border-bottom:1px dotted var(--line)}
+.vaddr a:hover{color:var(--ink);border-bottom-color:var(--ink)}
 .intro-r{flex:1 1 48%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;
   position:relative;overflow:hidden;padding:40px;border-left:1px solid var(--line)}
 .rings-box{position:relative;width:min(540px,88%);aspect-ratio:1}
@@ -199,8 +199,7 @@ input{font:inherit;color:inherit}
   .view{position:relative;min-height:100vh;min-height:100dvh}
   #intro{flex-direction:column}
   .intro-l{padding:32px 24px 20px;flex:none}
-  .facts{gap:0 22px;margin:26px 0 0}
-  .addr{margin:12px 0 30px}
+  .facts{gap:0 22px;margin:26px 0 30px}
   .facts dd{font-size:17px}
   .intro-r{flex:none;border-left:0;border-top:1px solid var(--line);padding:30px 20px 40px;gap:22px}
   .rings-box{width:min(300px,80vw)}
@@ -239,7 +238,6 @@ input{font:inherit;color:inherit}
         <div><dt>Time</dt><dd id="f-time"></dd></div>
         <div><dt>Venue</dt><dd id="f-venue"></dd></div>
       </dl>
-      <p class="addr" id="f-addr"></p>
       <button class="btn" id="start">開始填寫 <span class="arr">→</span></button>
       <p class="q-hint" style="margin-top:18px;font-family:var(--latin);font-style:italic;font-size:16px;letter-spacing:.03em">About 5 minutes · Thank you for taking the time.</p>
     </div>
@@ -331,8 +329,8 @@ const STEPS = [
     opts:a=>(CONFIG.BRANDS.find(b=>b.name===a.brand)||{stores:[]}).stores, req:true },
   { id:'email', sec:'基本資料', label:'Email', q:'你的 Email？', hint:'活動通知與異動會寄到這裡。',
     type:'email', ph:'name@example.com', req:true },
-  { id:'phone', sec:'基本資料', label:'電話', q:'聯絡電話', hint:'選填，臨時聯繫用。',
-    type:'tel', ph:'0912-345-678', req:false },
+  { id:'phone', sec:'基本資料', label:'院所電話', q:'聯絡電話', hint:'請填院所電話，我會打去院所找您。',
+    type:'tel', ph:'例如：04-2380-2393', req:true },
 
   { id:'diet', sec:'餐飲需求', label:'飲食', q:'你的飲食習慣？', type:'choice', grid:true,
     opts:DIET, req:true, show:a=>attending(a) },
@@ -358,11 +356,12 @@ const pad = n => String(n).padStart(2,'0');
 /* 開場 */
 $('#f-date').textContent = CONFIG.date;
 $('#f-time').textContent = CONFIG.time;
-$('#f-venue').textContent = CONFIG.venue;
-const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.venue + ' ' + CONFIG.address);
-const venueLinks = () => (CONFIG.venueUrl ? `<a href="${CONFIG.venueUrl}" target="_blank" rel="noopener">餐廳官網 ↗</a>` : '')
-  + (CONFIG.address ? `<a href="${MAP_URL}" target="_blank" rel="noopener">Google 地圖 ↗</a>` : '');
-$('#f-addr').innerHTML = (CONFIG.address ? esc(CONFIG.address) : '') + venueLinks();
+/* 場地：店名連到餐廳官網，地址連到 Google 地圖 */
+const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.venue + ' ' + (CONFIG.address||''));
+const venueHtml = () =>
+  (CONFIG.venueUrl ? `<a class="vlink" href="${CONFIG.venueUrl}" target="_blank" rel="noopener">${esc(CONFIG.venue)}</a>` : esc(CONFIG.venue))
+  + (CONFIG.address ? `<span class="vaddr"><a href="${MAP_URL}" target="_blank" rel="noopener">${esc(CONFIG.address)}</a></span>` : '');
+$('#f-venue').innerHTML = venueHtml();
 $('#deadline').textContent = CONFIG.deadline || 'Please RSVP';
 /* 七色圓環：每圈一個品牌，弧長、轉速、方向各不同 */
 (function drawRings(){
@@ -460,6 +459,7 @@ function bind(){
       const v = inp.value.trim();
       if (s.req && !v) return err('這題必填喔');
       if (s.type==='email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return err('Email 格式看起來不太對');
+      if (s.type==='tel' && (v.match(/\d/g)||[]).length < 7) return err('電話號碼看起來不完整');
       answer(s, v);
     };
     ok.onclick = submit;
@@ -561,9 +561,8 @@ function buildInvite(){
     <dl class="iv-grid">
       <div><dt>Date</dt><dd>${esc(CONFIG.date)}</dd></div>
       <div><dt>Time</dt><dd>${esc(CONFIG.time)}</dd></div>
-      <div><dt>Venue</dt><dd>${esc(CONFIG.venue)}</dd></div>
+      <div><dt>Venue</dt><dd>${venueHtml()}</dd></div>
     </dl>
-    ${CONFIG.address ? `<div class="iv-addr">${esc(CONFIG.address)}<br>${venueLinks()}</div>` : ''}
     <div class="iv-meta"><span>${going ? (diet || '') : '這次不克出席'}</span><span>${going ? extra : '期待下次相聚'}</span></div>
     <div class="iv-stub">
       <div class="iv-admit">${going ? `Admit ${party}<small>位</small>` : 'See you next time'}</div>
