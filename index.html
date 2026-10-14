@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- 分享預覽圖＋不讓 Google 收錄 -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="七個品牌・一條心｜佑達醫療集團尾牙報名，約 5 分鐘完成。">
 <meta property="og:type" content="website">
@@ -88,7 +89,13 @@ input{font:inherit;color:inherit}
 
 /* ---------- 表單 ---------- */
 #form{flex-direction:row}
-.pane-l{flex:1 1 55%;display:flex;flex-direction:column;padding:40px 64px 40px;position:relative;min-width:0}
+/* 左側問答背景疊圖：把場地照片存成 venue-bg.jpg 放在 index.html 旁邊即可；沒有圖片時不影響畫面 */
+.pane-l{flex:1 1 55%;display:flex;flex-direction:column;padding:40px 64px 40px;position:relative;min-width:0;isolation:isolate;overflow:hidden}
+.pane-l::before{content:"";position:absolute;inset:0;z-index:-2;background:url("venue-bg.jpg") center/cover no-repeat;
+  opacity:.16;filter:grayscale(.35) sepia(.25) contrast(.95);transform:scale(1.04);animation:bgdrift 40s ease-in-out infinite alternate}
+.pane-l::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(100deg,var(--paper) 0%,rgba(243,238,230,.88) 38%,rgba(243,238,230,.55) 70%,rgba(243,238,230,.35) 100%)}
+@keyframes bgdrift{to{transform:scale(1.1) translateX(-1.5%)}}
 .topbar{display:flex;justify-content:space-between;align-items:center}
 .mark{font-family:var(--serif);font-size:14px;letter-spacing:.24em}
 .mark i{font-style:normal;display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:10px;vertical-align:1px;transition:background .6s}
