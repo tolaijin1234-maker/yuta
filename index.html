@@ -90,11 +90,13 @@ input{font:inherit;color:inherit}
 /* ---------- 表單 ---------- */
 #form{flex-direction:row}
 /* 左側問答背景疊圖：把場地照片存成 venue-bg.jpg 放在 index.html 旁邊即可；沒有圖片時不影響畫面 */
-.pane-l{flex:1 1 55%;display:flex;flex-direction:column;padding:40px 64px 40px;position:relative;min-width:0;isolation:isolate;overflow:hidden}
-.pane-l::before{content:"";position:absolute;inset:0;z-index:-2;background:url("venue-bg.jpg") center/cover no-repeat;
-  opacity:.16;filter:grayscale(.35) sepia(.25) contrast(.95);transform:scale(1.04);animation:bgdrift 40s ease-in-out infinite alternate}
-.pane-l::after{content:"";position:absolute;inset:0;z-index:-1;
-  background:linear-gradient(100deg,var(--paper) 0%,rgba(243,238,230,.88) 38%,rgba(243,238,230,.55) 70%,rgba(243,238,230,.35) 100%)}
+.pane-l{flex:1 1 55%;display:flex;flex-direction:column;padding:40px 64px 40px;position:relative;min-width:0}
+/* 場地照片疊圖（首頁左側＋問答區）：要更明顯就調高 opacity，更淡就調低 */
+.pane-l,.intro-l{isolation:isolate;overflow:hidden;position:relative}
+.pane-l::before,.intro-l::before{content:"";position:absolute;inset:0;z-index:-2;background:url("venue-bg.jpg") center/cover no-repeat;
+  opacity:.32;filter:grayscale(.2) sepia(.18);transform:scale(1.04);animation:bgdrift 40s ease-in-out infinite alternate}
+.pane-l::after,.intro-l::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(100deg,rgba(243,238,230,.94) 0%,rgba(243,238,230,.78) 40%,rgba(243,238,230,.42) 72%,rgba(243,238,230,.18) 100%)}
 @keyframes bgdrift{to{transform:scale(1.1) translateX(-1.5%)}}
 .topbar{display:flex;justify-content:space-between;align-items:center}
 .mark{font-family:var(--serif);font-size:14px;letter-spacing:.24em}
